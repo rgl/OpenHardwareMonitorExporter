@@ -1,20 +1,25 @@
 ﻿using Microsoft.Win32;
 using Prometheus;
-using Prometheus.Advanced;
 using System;
 using System.Reflection;
 using Topshelf;
 
 namespace OpenHardwareMonitorExporter
 {
+    // TODO replace prometheus-net with a raw http endpoint handler that
+    //      directly exposes the /metrics resource. we do not really
+    //      need prometheus-net for implementing this.
     public class OpenHardwareMonitorService
     {
         private MetricServer _metricServer;
+        private MetricsCollector _metricsCollector;
 
         public OpenHardwareMonitorService(Uri url)
         {
-            DefaultCollectorRegistry.Instance.Clear();
-            DefaultCollectorRegistry.Instance.RegisterOnDemandCollectors(new MetricsCollector());
+            _metricsCollector = new MetricsCollector(Metrics.DefaultRegistry);
+
+            Metrics.SuppressDefaultMetrics();
+            Metrics.DefaultRegistry.AddBeforeCollectCallback(() => _metricsCollector.UpdateMetrics());
 
             _metricServer = new MetricServer(
                 hostname: url.Host,
@@ -25,12 +30,14 @@ namespace OpenHardwareMonitorExporter
 
         public void Start()
         {
+            _metricsCollector.Open();
             _metricServer.Start();
         }
 
         public void Stop()
         {
             _metricServer.Stop();
+            _metricsCollector.Close();
         }
     }
 

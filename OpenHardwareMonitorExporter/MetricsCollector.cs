@@ -1,32 +1,37 @@
 ﻿using OpenHardwareMonitor.Hardware;
-using Prometheus.Advanced;
+using Prometheus;
 using System;
 
 namespace OpenHardwareMonitorExporter
 {
-    internal class MetricsCollector : IOnDemandCollector, IDisposable
+    internal class MetricsCollector : IDisposable
     {
-        private Computer _computer;
         private MetricsVisitor _visitor;
+        private Computer _computer;
 
-        public MetricsCollector()
+        public MetricsCollector(CollectorRegistry registry)
         {
+            _visitor = new MetricsVisitor(registry);
+
             _computer = new Computer()
             {
                 CPUEnabled = true,
             };
+        }
 
+        public void Open()
+        {
             _computer.Open();
         }
 
-        public void Dispose()
+        public void Close()
         {
             _computer.Close();
         }
 
-        public void RegisterMetrics(ICollectorRegistry registry)
+        public void Dispose()
         {
-            _visitor = new MetricsVisitor(registry);
+            Close();
         }
 
         public void UpdateMetrics()

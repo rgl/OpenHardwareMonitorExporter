@@ -1,14 +1,13 @@
 ﻿using OpenHardwareMonitor.Hardware;
 using Prometheus;
-using Prometheus.Advanced;
 
 namespace OpenHardwareMonitorExporter
 {
     internal class MetricsVisitor : IVisitor
     {
-        private ICollectorRegistry _registry;
+        private CollectorRegistry _registry;
 
-        public MetricsVisitor(ICollectorRegistry registry)
+        public MetricsVisitor(CollectorRegistry registry)
         {
             _registry = registry;
         }
