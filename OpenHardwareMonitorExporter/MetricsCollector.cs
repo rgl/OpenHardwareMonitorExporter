@@ -15,10 +15,13 @@ namespace OpenHardwareMonitorExporter
 
             _computer = new Computer()
             {
-                CPUEnabled = true,
+                CPUEnabled           = true,
+                GPUEnabled           = true,
+                RAMEnabled           = true,
+                HDDEnabled           = true,
             };
         }
-
+           
         public void Open()
         {
             _computer.Open();
